@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cronómetro con Hooks</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          padding: 2rem;
+          background-color: #f9f9f9;
+          color: #333;
+        }
+  
+        .container {
+          background-color: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          padding: 1.5rem;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+  
+        .time-display {
+          font-size: 2.5rem;
+          font-weight: bold;
+          color: #555;
+          margin: 1rem 0;
+        }
+  
+        .controls {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 1.5rem;
+        }
+  
+        button {
+          margin: 0.3rem;
+          padding: 0.6rem 1.2rem;
+          font-size: 0.9rem;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          background-color: #4a90e2;
+          color: white;
+        }
+  
+        button:hover {
+          background-color: #357adb;
+        }
+  
+        .btn-pause {
+          background-color: #e27474;
+        }
+  
+        .btn-pause:hover {
+          background-color: #d46363;
+        }
+  
+        .sessions-list {
+          max-height: 250px;
+          overflow-y: auto;
+          margin-top: 1rem;
+          padding: 0;
+          list-style-type: none;
+        }
+  
+        .session-item {
+          background-color: #f5f5f5;
+          padding: 0.5rem;
+          margin-bottom: 0.3rem;
+          border-radius: 4px;
+        }
+        
+        .title {
+          color: #444;
+        }
+  
+        .sessions-title {
+          color: #555;
+          margin-top: 1.5rem;
+        }
+  
+        .no-sessions {
+          color: #888;
+          font-style: italic;
+        }
+      </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+      
+        function Stopwatch() {
+          const [time, setTime] = useState(0); 
+          const [isRunning, setIsRunning] = useState(false); 
+          const [sessions, setSessions] = useState([]); 
+          const intervalRef = useRef(null); 
+      
+          useEffect(function() {
+            if (isRunning) {
+              intervalRef.current = setInterval(function() {
+                setTime(function(prevTime) {
+                  return prevTime + 1;
+                });
+              }, 1000);
+            } else {
+              clearInterval(intervalRef.current);
+            }
+      
+            return function() {
+              clearInterval(intervalRef.current);
+            };
+          }, [isRunning]);
+      
+          function toggle() {
+            setIsRunning(function(prevState) {
+              return !prevState;
+            });
+          }
+      
+          function reset() {
+            setIsRunning(false);
+            setTime(0);
+          }
+      
+          function saveSession() {
+            setSessions(function(prevSessions) {
+              return prevSessions.concat(time);
+            });
+          }
+      
+          return (
+            <div>
+              <h1>Cronómetro :D</h1>
+              <h2>{time} segundos</h2>
+      
+              <button onClick={toggle}>{isRunning ? "Pausar" : "Iniciar"}</button>
+              <button onClick={reset}>Reiniciar</button>
+              <button onClick={saveSession}>Guardar marca</button>
+      
+              <h3>Marcas guardadas:</h3>
+              <ul>
+                {sessions.map(function(s, i) {
+                  return (
+                    <li key={i}>
+                      Marca {i + 1}: {s} segundos
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        }
+      
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<Stopwatch />);
+      </script>
+  </body>
+</html>
